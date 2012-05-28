@@ -20,14 +20,17 @@ Link: http://arduino.cc/playground/Code/Keypad
 */
 #include <Keypad.h>
 
+#define dataAvail 11  //Associate dataAvail with 11
+#define OE 12         //Associate OE (output enable) with 12
+
 const byte ROWS = 4;  //Number of rows
 const byte COLS = 4;  //Number of columns
 
 char keys[ROWS][COLS] = {  //Build a keymap
-  {'1','2','3','4'},
-  {'5','6','7','8'},
-  {'9','10','11','12'},
-  {'13','14','15','16'}
+  {1,2,3,4},
+  {5,6,7,8},
+  {9,10,11,12},
+  {13,14,15,16}
   };
   
 byte rowPins[ROWS] = {17, 0, 1, 2};  //Connect to the row pins
@@ -35,15 +38,7 @@ byte colPins[COLS] = {10, 9, 6, 5};  //Connect to the column pins
 
 Keypad keypad = Keypad(makeKeymap(keys), rowPins, colPins, ROWS, COLS);  //Start Keypad library
 
-byte outputPins[] = {11, 13, 14, 15, 16};  //Array to store output pins
-
-byte xColumn[4];     //Initialize an array for the columns
-byte yRow[4];        //Initialize an array for the rows
-byte BCD0ut[4];      //Initialize an array for the output
-
-byte dataAvail = 0;  //Variable for data available output
-byte outEnable = 0;  //Variable for output enable input
-#define OE 12        //Associate OE (output enable) with 12
+byte outputPins[] = {dataAvail, 13, 14, 15, 16};  //Array to store output pins
 
 void setup()
 {
@@ -51,13 +46,35 @@ void setup()
     pinMode(outputPins[i], OUTPUT);
     digitalWrite(outputPins[i], LOW);
   }
+  
+  pinMode(OE, INPUT);
 }
 
 void loop()
 {
-  
+  while(digitalRead(OE) == 0){
+    BCDwrite();
+  }
 }
 
-void BCDout()
+void BCDwrite()
 {
+  byte key = keypad.getKey();  //Returns key pressed
+  
+  if(key){
+    digitalWrite(dataAvail, HIGH);
+  }
+  else{
+    digitalWrite(dataAvail, LOW);
+  }
+  
+  byte keyPressed = (key - 1);
+  
+
+    for(byte i = 3; i > 0; i--){
+      byte x = ((keyPressed >> i) & 1);
+        for(byte i = 13; i < 16; i++){
+          digitalWrite(i, x);
+        }
+    }
 }
