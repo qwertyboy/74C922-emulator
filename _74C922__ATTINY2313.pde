@@ -12,31 +12,52 @@ The aim is to provide the same features as the original chip, so
 using this replacement in a new design should be the same as using
 the old one.
 
+Uses the Arduino Keypad library
+Link: http://arduino.cc/playground/Code/Keypad
+
 ~nathan duprey / qwertyboy~
 
 */
-byte inputPins[] = {17, 0, 1, 2, 5, 6, 9, 10, 12};  //Array to store input pins
-byte outputPins[] = {11, 13, 14, 15, 16};           //Array to store output pins
+#include <Keypad.h>
+
+const byte ROWS = 4;  //Number of rows
+const byte COLS = 4;  //Number of columns
+
+char keys[ROWS][COLS] = {  //Build a keymap
+  {'1','2','3','4'},
+  {'5','6','7','8'},
+  {'9','10','11','12'},
+  {'13','14','15','16'}
+  };
+  
+byte rowPins[ROWS] = {17, 0, 1, 2};  //Connect to the row pins
+byte colPins[COLS] = {10, 9, 6, 5};  //Connect to the column pins
+
+Keypad keypad = Keypad(makeKeymap(keys), rowPins, colPins, ROWS, COLS);  //Start Keypad library
+
+byte outputPins[] = {11, 13, 14, 15, 16};  //Array to store output pins
 
 byte xColumn[4];     //Initialize an array for the columns
 byte yRow[4];        //Initialize an array for the rows
-byte output[4];      //Initialize an array for the output
+byte BCD0ut[4];      //Initialize an array for the output
+
 byte dataAvail = 0;  //Variable for data available output
 byte outEnable = 0;  //Variable for output enable input
+#define OE 12        //Associate OE (output enable) with 12
 
 void setup()
 {
-  //Serial.begin(9600);  //We are using the serial pins on the attiny, so this won't work
-  
-  for(byte i = 0; i < 9; i++){    //Set the input pins according to
-    pinMode(inputPins[i], INPUT); //the array defined at the top
-  }
-  
-  for(byte i = 0; i < 5; i++){      //Same deal as above, bit with
-    pinMode(outputPins[i], OUTPUT); //output pins this time
+  for(byte i = 0; i < 5; i++){
+    pinMode(outputPins[i], OUTPUT);
+    digitalWrite(outputPins[i], LOW);
   }
 }
 
 void loop()
+{
+  
+}
+
+void BCDout()
 {
 }
