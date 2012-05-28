@@ -26,7 +26,7 @@ Link: http://arduino.cc/playground/Code/Keypad
 const byte ROWS = 4;  //Number of rows
 const byte COLS = 4;  //Number of columns
 
-char keys[ROWS][COLS] = {  //Build a keymap
+byte keys[ROWS][COLS] = {  //Build a keymap
   {1,2,3,4},
   {5,6,7,8},
   {9,10,11,12},
@@ -42,39 +42,39 @@ byte outputPins[] = {dataAvail, 13, 14, 15, 16};  //Array to store output pins
 
 void setup()
 {
+  Serial.begin(9600);
   for(byte i = 0; i < 5; i++){
     pinMode(outputPins[i], OUTPUT);
     digitalWrite(outputPins[i], LOW);
   }
   
   pinMode(OE, INPUT);
+  digitalWrite(OE, HIGH);
 }
 
 void loop()
 {
-  while(digitalRead(OE) == 0){
     BCDwrite();
-  }
 }
 
 void BCDwrite()
 {
   byte key = keypad.getKey();  //Returns key pressed
+  byte temp;
   
   if(key){
     digitalWrite(dataAvail, HIGH);
-  }
-  else{
+    Serial.println(key, BIN);
+  }else{
     digitalWrite(dataAvail, LOW);
   }
   
-  byte keyPressed = (key - 1);
-  
-
-    for(byte i = 3; i > 0; i--){
-      byte x = ((keyPressed >> i) & 1);
-        for(byte i = 13; i < 16; i++){
-          digitalWrite(i, x);
-        }
-    }
+  temp = key;
+  digitalWrite(13, ((temp >> 3) & 1));
+  temp = key;
+  digitalWrite(14, ((temp >> 2) & 1));
+  temp = key;
+  digitalWrite(15, ((temp >> 1) & 1));
+  temp = key;
+  digitalWrite(16, (temp & 1));
 }
